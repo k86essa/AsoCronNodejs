@@ -1,0 +1,16 @@
+{
+  "name": "tarea",
+  "version": "1.0.0",
+  "description": "Tareas programadas en nodejs",
+  "main": "tareas.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nerio Perdomo <nerioperdomo28@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "cron": "^1.7.1",
+    "oracledb": "^4.0.0",
+    "request": "^2.88.0"
+  }
+}
