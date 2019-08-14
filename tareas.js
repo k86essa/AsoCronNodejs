@@ -1,7 +1,9 @@
 var request =require("request");
 var oraBase =require("oracledb");
 oraBase.fetchAsString = [ oraBase.CLOB ];
-var oraCredenciales =require("./config-base").test/*.prod*/;
+var oraCredenciales =require("./config-base")
+.prod;
+//.test;
 var oraQueries =require("./queries-base");
 var listaApis =require("./lista-apis.js");
 var CronJob =require('cron').CronJob;
@@ -69,11 +71,13 @@ async function actualizarTasa()
     );
 }
 //debug
-console.log('Inicio de la tarea:');
+console.log('Inicio de la tarea V1:');
 console.log(Date());
 //Tarea programada cada 10 min actualiza la tasa dolar dicom
 new CronJob(
-    '0 */10 * * * *',
+    //'* * * * * *',     //verifica cada segundo
+    //'0 */10 * * * *', //verifica cada 10 minutos
+    '0 7 * * *',        //verifica cada dia a las 7 am
     actualizarTasa,
     function()
     {
