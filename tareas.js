@@ -77,7 +77,8 @@ console.log(Date());
 new CronJob(
     //'* * * * * *',     //verifica cada segundo
     //'0 */10 * * * *', //verifica cada 10 minutos
-    '0 7 * * *',        //verifica cada dia a las 7 am
+    //'0 7 * * *',        //verifica cada dia a las 7 am
+    '0 11 * * *',        //verifica cada dia a las 11 am
     actualizarTasa,
     function()
     {
