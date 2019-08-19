@@ -1,27 +1,64 @@
 var request =require("request");
 var oraBase =require("oracledb");
 oraBase.fetchAsString = [ oraBase.CLOB ];
-var oraCredenciales =require("./config-base")
+//Credenciales BD
+var oraCredencialesAso =require("./config-base").asoportuguesa
 .prod;
 //.test;
-var oraQueries =require("./queries-base");
+var oraCredencialesAsopr =require("./config-base").asoproductos
+.prod;
+//Queries BD
+var oraQueriesAso =require("./queries-base").asoportuguesa;
+var oraQueriesAsopr =require("./queries-base").asoproductos;
+//Lista de API's a usar
 var listaApis =require("./lista-apis.js");
 var CronJob =require('cron').CronJob;
-async function obtConexion()
+async function obtConexion(credenciales)
 {//obtener conexion con la base de dato
     oraConn = await oraBase.getConnection({
-        user			:oraCredenciales.usuario,
-        password		:oraCredenciales.contrasenia,
-        connectString	:oraCredenciales.cadenaConn
+        user			:credenciales.usuario,
+        password		:credenciales.contrasenia,
+        connectString	:credenciales.cadenaConn
     })
     .catch((error)=>{
         console.error('Error instanciando la base de datos:');
         console.error(error);
-        process.exit();
+        //process.exit();
+        return;
     });
     return oraConn;
 }
-async function actualizarTasa()
+async function actualizarTasaDTAso(body)
+{
+    let oraConnAso = await obtConexion(oraCredencialesAso);
+    opciones  ={
+        outFormat: oraBase.OBJECT,
+        autoCommit: true
+    }
+    try
+    {
+        let respUltVal = await oraConnAso.execute(oraQueriesAso.ultValTasaDolarDicom, {}, opciones); 
+        let ultVal =respUltVal.rows[0].VA_VARIABLE;
+        //debug
+        console.log('resultado del ultimo valor de la tasa:');
+        console.log(ultVal);
+        if(ultVal != body.USD.sicad2)
+        {//si el ultimo valor de la tasa es distinto al recibido por el API, se actualiza
+            let respIns = await oraConnAso.execute(oraQueriesAso.actTasaDolarDicom, [body.USD.sicad2], opciones);
+            //debug
+            console.log('resultado del insert:');
+            console.log(respIns);
+        }
+    }
+    catch(e)
+    {
+        console.error('Error en actTasaDolarDicom:');
+        console.error(e);
+        //process.exit();
+        return;
+    }
+}
+async function actualizarTasaDT()
 {//actualiza las tasas
     request(
         listaApis.DTAPI,
@@ -34,34 +71,11 @@ async function actualizarTasa()
             {
                 console.error('Error en la consulta a DTAPI:');
                 console.error(err);
-                process.exit();
+                //process.exit();
+                return;
             }
-            let oraConn = await obtConexion();
-            opciones  ={
-                outFormat: oraBase.OBJECT,
-                autoCommit: true
-            }
-            try
-            {
-                let respUltVal = await oraConn.execute(oraQueries.ultValTasaDolarDicom, {}, opciones); 
-                let ultVal =respUltVal.rows[0].VA_VARIABLE;
-                //debug
-                console.log('resultado del ultimo valor de la tasa:');
-                console.log(ultVal);
-                if(ultVal != body.USD.sicad2)
-                {//si el ultimo valor de la tasa es distinto al recibido por el API, se actualiza
-                    let respIns = await oraConn.execute(oraQueries.actTasaDolarDicom, [body.USD.sicad2], opciones);
-                    //debug
-                    console.log('resultado del insert:');
-                    console.log(respIns);
-                }
-            }
-            catch(e)
-            {
-                console.error('Error en actTasaDolarDicom:');
-                console.error(e);
-                process.exit();
-            }
+            actualizarTasaDTAso(body);
+            //actualizarTasaDTAsopr(body);
             //debug
             console.log('sicad1', body.USD.sicad1);
             console.log('sicad2', body.USD.sicad2); //correcto
@@ -79,7 +93,7 @@ new CronJob(
     //'0 */10 * * * *', //verifica cada 10 minutos
     //'0 7 * * *',        //verifica cada dia a las 7 am
     '0 11 * * *',        //verifica cada dia a las 11 am
-    actualizarTasa,
+    actualizarTasaDT,
     function()
     {
         console.log('termino la tarea');
