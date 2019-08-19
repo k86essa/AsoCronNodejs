@@ -1,5 +1,7 @@
 var request =require("request");
 var oraBase =require("oracledb");
+//oraBase.queueTimeout =6000;
+//oraBase.poolTimeout =10;
 oraBase.fetchAsString = [ oraBase.CLOB ];
 //Credenciales BD
 var oraCredencialesAso =require("./config-base").asoportuguesa
@@ -15,22 +17,88 @@ var listaApis =require("./lista-apis.js");
 var CronJob =require('cron').CronJob;
 async function obtConexion(credenciales)
 {//obtener conexion con la base de dato
-    oraConn = await oraBase.getConnection({
-        user			:credenciales.usuario,
-        password		:credenciales.contrasenia,
-        connectString	:credenciales.cadenaConn
-    })
-    .catch((error)=>{
-        console.error('Error instanciando la base de datos:');
-        console.error(error);
+    try
+    {
+    oraConn = await 
+    Promise.race(
+        [
+            oraBase.getConnection({
+                user			:credenciales.usuario,
+                password		:credenciales.contrasenia,
+                connectString	:credenciales.cadenaConn
+            })
+            .then(conn =>
+                {
+                    return conn;
+                }
+            ),
+            new Promise(
+                (resolve, reject)=>
+                {
+                    setTimeout(
+                        ()=>
+                        {
+                            reject('Tiempo de espera excedido');
+                        },
+                        5000
+                    );
+                }
+            )
+        ]
+    );
+    }
+    catch(e)
+    {
+        console.error(e);
+        return false;
+    }
+    return oraConn;
+}
+async function actualizarTasaDTAsopr(body)
+{
+    console.log('Actualizando Asoproductos');
+    let oraConnAsopr = await obtConexion(oraCredencialesAsopr);
+    if(!oraConnAsopr)
+    {
+        console.log('Fallo al conectar con Asoproductos');
+        return;
+    }
+    opciones  ={
+        outFormat: oraBase.OBJECT,
+        autoCommit: true
+    }
+    try
+    {
+        let respUltVal = await oraConnAsopr.execute(oraQueriesAsopr.ultValTasaDolarDicom, {}, opciones); 
+        let ultValDD =respUltVal.rows[0].VA_VARIABLE; //ultimo valor de Dolar Dicom
+        respUltVal = await oraConnAsopr.execute(oraQueriesAsopr.ultValTasaEuroDicom, {}, opciones); 
+        let ultValED =respUltVal.rows[0].VA_VARIABLE; //Ultimo valor de Euro Dicom
+        if(ultValDD != body.USD.sicad2) //Verifica tasa Dolar Dicom
+        {//si el ultimo valor de la tasa es distinto al recibido por el API, se actualiza
+            let respIns = await oraConnAsopr.execute(oraQueriesAsopr.actTasaDolarDicom, [body.USD.sicad2], opciones);
+        }
+        if(ultValED != body.USD.sicad2) //Verifica tasa Euro Dicom
+        {//si el ultimo valor de la tasa es distinto al recibido por el API, se actualiza
+            let respIns = await oraConnAsopr.execute(oraQueriesAsopr.actTasaEuroDicom, [body.EUR.sicad2], opciones);
+        }
+    }
+    catch(e)
+    {
+        console.error('Error en actTasaDolarDicom:');
+        console.error(e);
         //process.exit();
         return;
-    });
-    return oraConn;
+    }
 }
 async function actualizarTasaDTAso(body)
 {
+    console.log('Actualizando Asoportuguesa');
     let oraConnAso = await obtConexion(oraCredencialesAso);
+    if(!oraConnAso)
+    {
+        console.log('Fallo al conectar con Asoportuguesa');
+        return;
+    }
     opciones  ={
         outFormat: oraBase.OBJECT,
         autoCommit: true
@@ -39,15 +107,9 @@ async function actualizarTasaDTAso(body)
     {
         let respUltVal = await oraConnAso.execute(oraQueriesAso.ultValTasaDolarDicom, {}, opciones); 
         let ultVal =respUltVal.rows[0].VA_VARIABLE;
-        //debug
-        console.log('resultado del ultimo valor de la tasa:');
-        console.log(ultVal);
         if(ultVal != body.USD.sicad2)
         {//si el ultimo valor de la tasa es distinto al recibido por el API, se actualiza
             let respIns = await oraConnAso.execute(oraQueriesAso.actTasaDolarDicom, [body.USD.sicad2], opciones);
-            //debug
-            console.log('resultado del insert:');
-            console.log(respIns);
         }
     }
     catch(e)
@@ -75,19 +137,13 @@ async function actualizarTasaDT()
                 return;
             }
             actualizarTasaDTAso(body);
-            //actualizarTasaDTAsopr(body);
-            //debug
-            console.log('sicad1', body.USD.sicad1);
-            console.log('sicad2', body.USD.sicad2); //correcto
-            console.log(body._timestamp.fecha);
-            console.log(Date());
+            actualizarTasaDTAsopr(body);
         }
     );
 }
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
-//Tarea programada cada 10 min actualiza la tasa dolar dicom
 new CronJob(
     //'* * * * * *',     //verifica cada segundo
     //'0 */10 * * * *', //verifica cada 10 minutos
@@ -100,3 +156,6 @@ new CronJob(
     },
     true
 );
+
+
+
