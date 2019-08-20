@@ -1,3 +1,5 @@
+const clienteM =require('twilio')();
+var numeros =require("./contactos-list.js").contactos;
 var request =require("request");
 var oraBase =require("oracledb");
 //oraBase.queueTimeout =6000;
@@ -71,23 +73,13 @@ async function actualizarTasaDTAsopr(body)
     {
         let respUltVal = await oraConnAsopr.execute(oraQueriesAsopr.ultValTasaDolarDicom, {}, opciones); 
         let ultValDD =respUltVal.rows[0].VA_VARIABLE; //ultimo valor de Dolar Dicom
-        respUltVal = await oraConnAsopr.execute(oraQueriesAsopr.ultValTasaEuroDicom, {}, opciones); 
-        let ultValED =respUltVal.rows[0].VA_VARIABLE; //Ultimo valor de Euro Dicom
-        console.log('DOLAR base');
-        console.log(ultValDD);
-        console.log('DOLAR api');
-        console.log(body.USD.sicad2);
-        console.log('EURO base');
-        console.log(ultValED);
-        console.log('EURO api');
-        console.log(body.EUR.sicad2);
         if(ultValDD != body.USD.sicad2) //Verifica tasa Dolar Dicom
         {//si el ultimo valor de la tasa es distinto al recibido por el API, se actualiza
             let respIns = await oraConnAsopr.execute(oraQueriesAsopr.actTasaDolarDicom, [body.USD.sicad2], opciones);
-        }
-        if(ultValED != body.EUR.sicad2) //Verifica tasa Euro Dicom
-        {//si el ultimo valor de la tasa es distinto al recibido por el API, se actualiza
-            let respIns = await oraConnAsopr.execute(oraQueriesAsopr.actTasaEuroDicom, [body.EUR.sicad2], opciones);
+            if(respIns.rowsAffected > 0)
+            {//si afecto algun registro en la base de datos
+                enviarMensajes('Tasa Dolar Dicom actualizada en Asoproductos a '+body.USD.sicad2);
+            }
         }
     }
     catch(e)
@@ -95,7 +87,7 @@ async function actualizarTasaDTAsopr(body)
         console.error('Error en actTasaDolarDicom Asoproductos:');
         console.error(e);
         //process.exit();
-        return;
+        return false;
     }
 }
 async function actualizarTasaDTAso(body)
@@ -118,6 +110,10 @@ async function actualizarTasaDTAso(body)
         if(ultVal != body.USD.sicad2)
         {//si el ultimo valor de la tasa es distinto al recibido por el API, se actualiza
             let respIns = await oraConnAso.execute(oraQueriesAso.actTasaDolarDicom, [body.USD.sicad2], opciones);
+            if(respIns.rowsAffected > 0)
+            {//si afecto algun registro en la base de datos
+                enviarMensajes('(Prueba) Tasa Dolar Dicom actualizada en Asoportuguesa a '+body.USD.sicad2);
+            }
         }
     }
     catch(e)
@@ -125,7 +121,7 @@ async function actualizarTasaDTAso(body)
         console.error('Error en actTasaDolarDicom Asoportuguesa:');
         console.error(e);
         //process.exit();
-        return;
+        return false;
     }
 }
 async function actualizarTasaDT()
@@ -149,6 +145,29 @@ async function actualizarTasaDT()
         }
     );
 }
+async function enviarMensajes(texto)
+{
+    numeros.forEach(
+        async (contacto)=>
+        {
+            try
+            {
+                let resMen = await clienteM.messages.create(
+                    {
+                        from: 'whatsapp:+14155238886',
+                        body: texto,
+                        to: 'whatsapp:'+contacto.numero
+                    }
+                );
+                console.log(resMen);
+            }
+            catch(e)
+            {
+                console.error('Error en el envio de whatsapp: ', e);
+            }
+        }
+    );
+}
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
@@ -164,6 +183,3 @@ new CronJob(
     },
     true
 );
-
-
-

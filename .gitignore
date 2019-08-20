@@ -1,5 +1,6 @@
 config-base.js
 queries-base.js
+contactos-list.js
 
 *~
 *.sw[mnpcod]
