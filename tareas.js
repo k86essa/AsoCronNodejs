@@ -75,11 +75,13 @@ async function actualizarTasaDTAsopr(body)
         let ultValDD =respUltVal.rows[0].VA_VARIABLE; //ultimo valor de Dolar Dicom
         if(ultValDD != body.USD.sicad2) //Verifica tasa Dolar Dicom
         {//si el ultimo valor de la tasa es distinto al recibido por el API, se actualiza
-            let respIns = await oraConnAsopr.execute(oraQueriesAsopr.actTasaDolarDicom, [body.USD.sicad2], opciones);
-            if(respIns.rowsAffected > 0)
-            {//si afecto algun registro en la base de datos
-                enviarMensajes('Tasa Dolar Dicom actualizada en Asoproductos a '+body.USD.sicad2);
-            }
+            //let respIns = await oraConnAsopr.execute(oraQueriesAsopr.actTasaDolarDicom, [body.USD.sicad2], opciones);
+            //if(respIns.rowsAffected > 0)
+            //{//si afecto algun registro en la base de datos
+                enviarMensajes(`Atencion !!! La tasa del Dollar ha cambiado a: ${body.USD.sicad2}
+                Se requiere actualizar la tasa en el Sistema. 
+                ADVERTENCIA: Esta No ha sido actualizada en el Sistema.`);
+            //}
         }
     }
     catch(e)
@@ -109,11 +111,13 @@ async function actualizarTasaDTAso(body)
         let ultVal =respUltVal.rows[0].VA_VARIABLE;
         if(ultVal != body.USD.sicad2)
         {//si el ultimo valor de la tasa es distinto al recibido por el API, se actualiza
-            let respIns = await oraConnAso.execute(oraQueriesAso.actTasaDolarDicom, [body.USD.sicad2], opciones);
-            if(respIns.rowsAffected > 0)
-            {//si afecto algun registro en la base de datos
-                enviarMensajes('(Prueba) Tasa Dolar Dicom actualizada en Asoportuguesa a '+body.USD.sicad2);
-            }
+            //let respIns = await oraConnAso.execute(oraQueriesAso.actTasaDolarDicom, [body.USD.sicad2], opciones);
+            //if(respIns.rowsAffected > 0)
+            //{//si afecto algun registro en la base de datos
+                enviarMensajes(`Atencion !!! La tasa del Dollar ha cambiado a: ${body.USD.sicad2}
+                Se requiere actualizar la tasa en el Sistema. 
+                ADVERTENCIA: Esta No ha sido actualizada en el Sistema.`);
+            //}
         }
     }
     catch(e)
