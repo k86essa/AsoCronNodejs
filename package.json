@@ -4,12 +4,16 @@
   "description": "Tareas programadas en nodejs",
   "main": "tareas.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon tareas.js"
   },
   "author": "Nerio Perdomo <nerioperdomo28@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "cron": "^1.7.1",
+    "currency-formatter": "^1.5.5",
+    "node-cron": "^2.0.3",
+    "nodemon": "^1.19.3",
     "oracledb": "^4.0.0",
     "request": "^2.88.0"
   }

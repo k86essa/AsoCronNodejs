@@ -1,7 +1,8 @@
-const clienteM =require('twilio')();
-var numeros =require("./contactos-list.js").contactos;
+//const clienteM =require('twilio')();
+var numeros = require("./contactos-list.js");
 var request =require("request");
 var oraBase =require("oracledb");
+var format = require('currency-formatter');
 //oraBase.queueTimeout =6000;
 //oraBase.poolTimeout =10;
 oraBase.fetchAsString = [ oraBase.CLOB ];
@@ -16,7 +17,7 @@ var oraQueriesAso =require("./queries-base").asoportuguesa;
 var oraQueriesAsopr =require("./queries-base").asoproductos;
 //Lista de API's a usar
 var listaApis =require("./lista-apis.js");
-var CronJob =require('cron').CronJob;
+var CronJob =require('node-cron');
 async function obtConexion(credenciales)
 {//obtener conexion con la base de dato
     try
@@ -149,41 +150,104 @@ async function actualizarTasaDT()
         }
     );
 }
-async function enviarMensajes(texto)
+async function montoVentaDia()
 {
-    numeros.forEach(
-        async (contacto)=>
-        {
-            try
-            {
-                let resMen = await clienteM.messages.create(
-                    {
-                        from: 'whatsapp:+14155238886',
-                        body: texto,
-                        to: 'whatsapp:'+contacto.numero
-                    }
-                );
-                console.log(resMen);
-            }
-            catch(e)
-            {
-                console.error('Error en el envio de whatsapp: ', e);
-            }
-        }
+    console.log('Consultando Monto total de ventas Asoproductos');
+    let oraConnAsopr = await obtConexion(oraCredencialesAsopr);
+    if(!oraConnAsopr)
+    {
+        console.log('Fallo al conectar con Asoproductos');
+        return;
+    }
+    opciones  ={
+        outFormat: oraBase.OBJECT,
+        autoCommit: true
+    }
+    try
+    {
+        let consult = await oraConnAsopr.execute(oraQueriesAsopr.TotalVentaDia, {}, opciones); 
+        let monto =consult.rows[0].TOTAL_VENTAS_DIA; //ultimo valor de Dolar Dicom
+
+        let bs = format.format(monto, {
+            /* code: 'BSS',
+            symbol: 'BsS ', */
+            thousandsSeparator: ',',
+            decimalSeparator: '.',
+            symbolOnLeft: true,
+            spaceBetweenAmountAndSymbol: false,
+            decimalDigits: 2,
+            format: '%v %s'
+        });
+
+        console.log('Monto: ' + bs);
+
+        var texto = '\n*ASOPRODUCTOS*\nVenta total del dia: ' + bs;
+        
+        numeros.contactNiceApi.forEach((valor,i,number) => {
+            delay(
+                enviarMensajes(
+                    texto,
+                    number[i].numero
+                ),
+                600000
+            );
+            
+        });
+        
+    }
+    catch(e)
+    {
+        console.error('Error en montoVentaDia Asoproductos:');
+        console.error(e);
+        //process.exit();
+        return false;
+    }
+}
+async function enviarMensajes(texto,number)
+{
+    var body = JSON.stringify({
+        APIId    : listaApis.niceApi.token2,
+        APIMobile: number,
+        Message  : texto
+    });
+    
+    var postBody = {
+      url: listaApis.niceApi.link,
+      body: body,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    };
+    
+    request.post(postBody, function(error, res, body) {
+      if (error) {
+        console.error(error)
+        return
+      }
+      console.log(`statusCode: ${res.statusCode}`)
+      console.log(body);
+    });
+}
+async function delay(re,ms) {
+    setTimeout(
+        ()=>{
+            re
+        },
+        ms
     );
 }
+
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
-new CronJob(
-    //'* * * * * *',     //verifica cada segundo
-    //'0 */10 * * * *', //verifica cada 10 minutos
-    //'0 7 * * *',        //verifica cada dia a las 7 am
-    '0 11 * * *',        //verifica cada dia a las 11 am
-    actualizarTasaDT,
-    function()
-    {
-        console.log('termino la tarea');
+var task = CronJob.schedule(
+    '15 17 * * *', // ejecucion 5:15 pm
+    ()=>{
+        montoVentaDia();
     },
-    true
+    {
+        schedule: false
+    }
 );
+
+task.start();
