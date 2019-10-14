@@ -182,11 +182,12 @@ async function montoVentaDia()
         console.log('Monto: ' + bs);
 
         var texto = '\n*ASOPRODUCTOS*\nVenta total del dia: ' + bs;
+        var textoprueba = '\n*ASOPRODUCTOS*\nPrueba de envio';
         
-        numeros.contactNiceApi.forEach((valor,i,number) => {
+        numeros.contactNiceApi.forEach( async (valor,i,number) => {
             delay(
-                enviarMensajes(
-                    texto,
+             enviarMensajes(
+                textoprueba,
                     number[i].numero
                 ),
                 600000
@@ -231,7 +232,7 @@ async function enviarMensajes(texto,number)
 async function delay(re,ms) {
     setTimeout(
         ()=>{
-            re
+            re()
         },
         ms
     );
@@ -241,7 +242,7 @@ async function delay(re,ms) {
 console.log('Inicio de la tarea V1:');
 console.log(Date());
 var task = CronJob.schedule(
-    '15 17 * * *', // ejecucion 5:15 pm
+    '5 * * * *', // ejecucion 5:15 pm
     ()=>{
         montoVentaDia();
     },
