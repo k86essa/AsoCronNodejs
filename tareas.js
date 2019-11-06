@@ -168,7 +168,7 @@ async function montoVentaDia()
         let consult = await oraConnAsopr.execute(oraQueriesAsopr.TotalVentaDia, {}, opciones); 
         let monto =consult.rows[0].TOTAL_VENTAS_DIA; //ultimo valor de Dolar Dicom
 
-        if (!monto == null) {
+        if (monto != null) {
             var bs = format.format(monto, {
                 /* code: 'BSS',
                 symbol: 'BsS ', */
@@ -186,17 +186,7 @@ async function montoVentaDia()
         console.log(Date()); // mostramos fecha de cada consulta
         console.log('Monto: ' + bs); // mostramos el monto consultado
 
-        var texto = '\n*ASOPRODUCTOS*\nVenta total del dia: ' + bs;
-        var textoprueba = '\n*ASOPRODUCTOS*\nPrueba de envio';
-        
-        for (let i = 0; i < numeros.contactNiceApi.length; i++) {
-            enviarMensajes(
-                texto,
-                numeros.contactNiceApi[i].numero
-            );
-            await retraso(65000);
-            
-        }        
+        z
     }
     catch(e)
     {
