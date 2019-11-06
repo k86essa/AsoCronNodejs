@@ -180,25 +180,23 @@ async function montoVentaDia()
                 format: '%v %s'
             });
         } else {
-            return false;
+            return 0;
         }
-        console.log(Date()); // fecha del dia de consulta de monto
-        console.log('Monto: ' + bs); // monto consultado
+
+        console.log(Date()); // mostramos fecha de cada consulta
+        console.log('Monto: ' + bs); // mostramos el monto consultado
 
         var texto = '\n*ASOPRODUCTOS*\nVenta total del dia: ' + bs;
         var textoprueba = '\n*ASOPRODUCTOS*\nPrueba de envio';
         
-        numeros.contactNiceApi.forEach( async (valor,i,number) => {
-            delay(
-             enviarMensajes(
-                textoprueba,
-                    number[i].numero
-                ),
-                600000
+        for (let i = 0; i < numeros.contactNiceApi.length; i++) {
+            enviarMensajes(
+                texto,
+                numeros.contactNiceApi[i].numero
             );
+            await retraso(65000);
             
-        });
-        
+        }        
     }
     catch(e)
     {
@@ -208,6 +206,11 @@ async function montoVentaDia()
         return false;
     }
 }
+async function retraso(ms)
+    {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
 async function enviarMensajes(texto,number)
 {
     var body = JSON.stringify({
@@ -231,22 +234,15 @@ async function enviarMensajes(texto,number)
       }
       console.log(`statusCode: ${res.statusCode}`)
       console.log(body);
+      return;
     });
-}
-async function delay(re,ms) {
-    setTimeout(
-        ()=>{
-            re()
-        },
-        ms
-    );
 }
 
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
 var task = CronJob.schedule(
-    '5 * * * *', // ejecucion 5:15 pm
+    '15 17 * * 1-5', // ejecucion 5:15 pm
     ()=>{
         montoVentaDia();
     },
