@@ -168,7 +168,7 @@ async function montoVentaDia()
         let consult = await oraConnAsopr.execute(oraQueriesAsopr.TotalVentaDia, {}, opciones); 
         let monto =consult.rows[0].TOTAL_VENTAS_DIA; //ultimo valor de Dolar Dicom
 
-        if (!monto == null) {
+        if (monto != null) {
             var bs = format.format(monto, {
                 /* code: 'BSS',
                 symbol: 'BsS ', */
@@ -188,17 +188,14 @@ async function montoVentaDia()
         var texto = '\n*ASOPRODUCTOS*\nVenta total del dia: ' + bs;
         var textoprueba = '\n*ASOPRODUCTOS*\nPrueba de envio';
         
-        numeros.contactNiceApi.forEach( async (valor,i,number) => {
-            delay(
-             enviarMensajes(
-                textoprueba,
-                    number[i].numero
-                ),
-                600000
+        for (let i = 0; i < numeros.contactNiceApi.length; i++) {
+            enviarMensajes(
+                texto,
+                numeros.contactNiceApi[i].numero
             );
+            await retraso(65000);
             
-        });
-        
+        }        
     }
     catch(e)
     {
@@ -208,6 +205,11 @@ async function montoVentaDia()
         return false;
     }
 }
+async function retraso(ms)
+    {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
 async function enviarMensajes(texto,number)
 {
     var body = JSON.stringify({
@@ -231,22 +233,15 @@ async function enviarMensajes(texto,number)
       }
       console.log(`statusCode: ${res.statusCode}`)
       console.log(body);
+      return;
     });
-}
-async function delay(re,ms) {
-    setTimeout(
-        ()=>{
-            re()
-        },
-        ms
-    );
 }
 
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
 var task = CronJob.schedule(
-    '5 * * * *', // ejecucion 5:15 pm
+    '15 17 * * 1-5', // ejecucion 5:15 pm
     ()=>{
         montoVentaDia();
     },
