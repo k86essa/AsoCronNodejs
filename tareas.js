@@ -232,7 +232,7 @@ async function enviarMensajes(texto,number)
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
-respaldosArcGit.backupArc('../gitPrueba', 'master');
+respaldosArcGit.backupArc('../asodocs', 'master');
 
 //notificación
 var task = CronJob.schedule(
