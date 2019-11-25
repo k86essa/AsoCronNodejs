@@ -2,19 +2,14 @@ const shellExec =require('shell-exec');
 async function shell()
 {
     let resp = await shellExec('cd ../gitPrueba && git status');
+    console.log(resp);
     let arcPendientes = resp.stdout.includes('Untracked files:');
     if(arcPendientes)
     {
-        resp = await shellExec('git add .');
-        resp = await shellExec('git commit -m "respaldo"');
-        console.log(resp);
-        /*resp = await shellExec('git status');
-        let arcPendCommit = resp.stdout.includes('Changes to be committed:');
-        if(arcPendCommit)
-        {
-            resp = await shellExec('git commit -m "Respaldo automatico de nuevos archivos"');
-           
-        }*/
+        resp = await shellExec('cd ../gitPrueba && git add . && git commit -m "respaldo" && git status');
+        let fin = resp.stdout.includes('working tree clean');
+        if(fin){console.log('finalizado correctamente');}
+        else{console.log('error revisar')}
     }
     else
     {
