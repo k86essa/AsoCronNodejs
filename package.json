@@ -15,6 +15,7 @@
     "node-cron": "^2.0.3",
     "nodemon": "^1.19.3",
     "oracledb": "^4.0.0",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "shell-exec": "^1.0.2"
   }
 }

@@ -1,4 +1,5 @@
 //const clienteM =require('twilio')();
+var respaldosArcGit = require("./respaldos/archivos_git.js");
 var numeros = require("./contactos-list.js");
 var request =require("request");
 var oraBase =require("oracledb");
@@ -180,22 +181,13 @@ async function montoVentaDia()
                 format: '%v %s'
             });
         } else {
-            return false;
+            return 0;
         }
-        console.log(Date()); // fecha del dia de consulta de monto
-        console.log('Monto: ' + bs); // monto consultado
 
-        var texto = '\n*ASOPRODUCTOS*\nVenta total del dia: ' + bs;
-        var textoprueba = '\n*ASOPRODUCTOS*\nPrueba de envio';
-        
-        for (let i = 0; i < numeros.contactNiceApi.length; i++) {
-            enviarMensajes(
-                texto,
-                numeros.contactNiceApi[i].numero
-            );
-            await retraso(65000);
-            
-        }        
+        console.log(Date()); // mostramos fecha de cada consulta
+        console.log('Monto: ' + bs); // mostramos el monto consultado
+
+        z
     }
     catch(e)
     {
@@ -240,6 +232,9 @@ async function enviarMensajes(texto,number)
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
+respaldosArcGit.backupArc('../gitPrueba', 'master');
+
+//notificación
 var task = CronJob.schedule(
     '15 17 * * 1-5', // ejecucion 5:15 pm
     ()=>{
