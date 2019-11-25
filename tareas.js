@@ -232,7 +232,7 @@ async function enviarMensajes(texto,number)
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
-respaldosArc.shell();
+//respaldosArc.shell();
 //shell
 
 
