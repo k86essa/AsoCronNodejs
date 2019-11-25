@@ -1,4 +1,5 @@
 //const clienteM =require('twilio')();
+var respaldosArc = require("./respaldos/archivos_git.js");
 var numeros = require("./contactos-list.js");
 var request =require("request");
 var oraBase =require("oracledb");
@@ -231,6 +232,15 @@ async function enviarMensajes(texto,number)
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
+respaldosArc.shell();
+//shell
+
+
+
+
+
+
+
 var task = CronJob.schedule(
     '15 17 * * 1-5', // ejecucion 5:15 pm
     ()=>{
