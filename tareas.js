@@ -232,8 +232,8 @@ async function enviarMensajes(texto,number)
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
-//respaldo archivos ASO/DOCS
-var task = CronJob.schedule(
+//respaldo archivos ASO/DOCS reemplazado por megasync
+/*var task = CronJob.schedule(
     '15 17 * * 1-5', // ejecucion 5:15 pm
     ()=>{
         respaldosArcGit.backupArc('../asodocs', 'master');
@@ -241,7 +241,7 @@ var task = CronJob.schedule(
     {
         schedule: false
     }
-);
+);*/
 //notificación
 var task = CronJob.schedule(
     '15 17 * * 1-5', // ejecucion 5:15 pm
