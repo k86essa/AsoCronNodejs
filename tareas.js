@@ -1,5 +1,6 @@
 //const clienteM =require('twilio')();
 var respaldosArcGit = require("./respaldos/archivos_git.js");
+var respaldosbdMysql = require("./respaldos/db_mysql.js");
 var numeros = require("./contactos-list.js");
 var request =require("request");
 var oraBase =require("oracledb");
@@ -232,16 +233,16 @@ async function enviarMensajes(texto,number)
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
-//respaldo archivos ASO/DOCS reemplazado por megasync
-/*var task = CronJob.schedule(
+//respaldo base ASO/DOCS
+var task = CronJob.schedule(
     '15 17 * * 1-5', // ejecucion 5:15 pm
     ()=>{
-        respaldosArcGit.backupArc('../asodocs', 'master');
+        respaldosbdMysql.backup('asodocs', 'asodocs', 'fwalmai', '/home/web/backup_db/');
     },
     {
         schedule: false
     }
-);*/
+);
 //notificación
 var task = CronJob.schedule(
     '15 17 * * 1-5', // ejecucion 5:15 pm
