@@ -233,6 +233,16 @@ async function enviarMensajes(texto,number)
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
+//respaldo archivos GIT
+var task = CronJob.schedule(
+    '15 17 * * 1-5', // ejecucion 5:15 pm
+    ()=>{
+        respaldosArcGit.backupArc('../asodocs', 'master');
+    },
+    {
+        schedule: false
+    }
+);
 //respaldo base ASO/DOCS
 var task = CronJob.schedule(
     '15 17 * * 1-5', // ejecucion 5:15 pm
