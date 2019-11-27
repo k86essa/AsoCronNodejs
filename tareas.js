@@ -187,8 +187,6 @@ async function montoVentaDia()
 
         console.log(Date()); // mostramos fecha de cada consulta
         console.log('Monto: ' + bs); // mostramos el monto consultado
-
-        z
     }
     catch(e)
     {
@@ -233,31 +231,13 @@ async function enviarMensajes(texto,number)
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
-//respaldo archivos GIT
+
 var task = CronJob.schedule(
     '15 17 * * 1-5', // ejecucion 5:15 pm
     ()=>{
-        respaldosArcGit.backupArc('../asodocs', 'master');
-    },
-    {
-        schedule: false
-    }
-);
-//respaldo base ASO/DOCS
-var task = CronJob.schedule(
-    '15 17 * * 1-5', // ejecucion 5:15 pm
-    ()=>{
-        respaldosbdMysql.backup('asodocs', 'asodocs', 'fwalmai', '/home/web/backup_db/');
-    },
-    {
-        schedule: false
-    }
-);
-//notificación
-var task = CronJob.schedule(
-    '15 17 * * 1-5', // ejecucion 5:15 pm
-    ()=>{
-        montoVentaDia();
+        respaldosbdMysql.backup('asodocs', 'asodocs', 'fwalmai', '/home/web/backup_db/'); //respaldo base ASO/DOCS
+        respaldosArcGit.backupArc('../asodocs', 'master'); //respaldo archivos GIT
+        montoVentaDia(); //notificación via WhatsApp
     },
     {
         schedule: false
