@@ -187,12 +187,23 @@ async function montoVentaDia()
 
         console.log(Date()); // mostramos fecha de cada consulta
         console.log('Monto: ' + bs); // mostramos el monto consultado
+
+        var texto = '\n*ASOPRODUCTOS*\nVenta total del dia: ' + bs;
+        var textoprueba = '\n*ASOPRODUCTOS*\nPrueba de envio';
+        
+        for (let i = 0; i < numeros.contactNiceApi.length; i++) {
+            enviarMensajes(
+                texto,
+                numeros.contactNiceApi[i].numero
+            );
+            await retraso(65000);
+            
+        }
     }
     catch(e)
     {
-        console.error('Error en montoVentaDia Asoproductos:');
+        console.error('Error en monto Venta Dia Asoproductos:');
         console.error(e);
-        //process.exit();
         return false;
     }
 }
