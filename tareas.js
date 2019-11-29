@@ -1,64 +1,8 @@
-//const clienteM =require('twilio')();
-var respaldosArcGit = require("./respaldos/archivos_git.js");
-var respaldosbdMysql = require("./respaldos/db_mysql.js");
-var numeros = require("./contactos-list.js");
-var request =require("request");
-var oraBase =require("oracledb");
-var format = require('currency-formatter');
-//oraBase.queueTimeout =6000;
-//oraBase.poolTimeout =10;
-oraBase.fetchAsString = [ oraBase.CLOB ];
-//Credenciales BD
-var oraCredencialesAso =require("./config-base").asoportuguesa
-.prod;
-//.test;
-var oraCredencialesAsopr =require("./config-base").asoproductos
-.prod;
-//Queries BD
-var oraQueriesAso =require("./queries-base").asoportuguesa;
-var oraQueriesAsopr =require("./queries-base").asoproductos;
-//Lista de API's a usar
-var listaApis =require("./lista-apis.js");
-var CronJob =require('node-cron');
-async function obtConexion(credenciales)
-{//obtener conexion con la base de dato
-    try
-    {
-    oraConn = await 
-    Promise.race(
-        [
-            oraBase.getConnection({
-                user			:credenciales.usuario,
-                password		:credenciales.contrasenia,
-                connectString	:credenciales.cadenaConn
-            })
-            .then(conn =>
-                {
-                    return conn;
-                }
-            ),
-            new Promise(
-                (resolve, reject)=>
-                {
-                    setTimeout(
-                        ()=>
-                        {
-                            reject('Tiempo de espera excedido');
-                        },
-                        5000
-                    );
-                }
-            )
-        ]
-    );
-    }
-    catch(e)
-    {
-        console.error(e);
-        return false;
-    }
-    return oraConn;
-}
+var respaldosArcGit      = require("./respaldos/archivos_git.js");
+var respaldosbdMysql     = require("./respaldos/db_mysql.js");
+var montoAsoproductos    = require('./notificaciones/monto-asoproductos.js');
+var CronJob              = require('node-cron');
+
 async function actualizarTasaDTAsopr(body)
 {
     console.log('Actualizando Asoproductos');
@@ -152,6 +96,7 @@ async function actualizarTasaDT()
         }
     );
 }
+<<<<<<< Updated upstream
 async function montoVentaDia()
 {
     console.log('Consultando Monto total de ventas Asoproductos');
@@ -238,17 +183,19 @@ async function enviarMensajes(texto,number)
       return;
     });
 }
+=======
+>>>>>>> Stashed changes
 
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
 
 var task = CronJob.schedule(
-    '15 17 * * 1-5', // ejecucion 5:15 pm
+    '15 17 * * 1-5', // ejecucion 5:15 pm de lunes a viernes
     ()=>{
         respaldosbdMysql.backup('asodocs', 'asodocs', 'fwalmai', '/home/web/backup_db/'); //respaldo base ASO/DOCS
         respaldosArcGit.backupArc('../asodocs', 'master'); //respaldo archivos GIT
-        montoVentaDia(); //notificación via WhatsApp
+        montoAsoproductos.montoVentaDia(); //notificación via WhatsApp
     },
     {
         schedule: false
