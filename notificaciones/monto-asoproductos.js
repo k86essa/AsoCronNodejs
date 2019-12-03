@@ -7,6 +7,7 @@ var oraCredencialesAsopr = require("../config/config-base").asoproductos.prod;
 var oraQueriesAso = require("../config/queries-base").asoportuguesa;
 var oraQueriesAsopr = require("../config/queries-base").asoproductos;
 var oraBase = require("oracledb");
+var request = require('request');
 //oraBase.queueTimeout =6000;
 //oraBase.poolTimeout =10;
 oraBase.fetchAsString = [ oraBase.CLOB ];
