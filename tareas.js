@@ -105,7 +105,7 @@ var task = CronJob.schedule(
     '15 17 * * 1-5', // ejecucion 5:15 pm de lunes a viernes
     ()=>{
         respaldosbdMysql.backup('asodocs', 'asodocs', 'fwalmai', '/home/web/backup_db/'); //respaldo base ASO/DOCS
-        respaldosArcGit.backupArc('../asodocs', 'master'); //respaldo archivos GIT
+        respaldosArcGit.backupArc('../documentos.asoportuguesa.org', 'master'); //respaldo archivos GIT
         montoAsoproductos.montoVentaDia(); //notificación via WhatsApp
     },
     {
