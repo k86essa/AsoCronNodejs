@@ -102,6 +102,7 @@ console.log('Inicio de la tarea V1:');
 console.log(Date());
 
 var task = CronJob.schedule(
+    /* '* * * * 1-5', */ // ejecucion 5:15 pm de lunes a viernes
     '15 17 * * 1-5', // ejecucion 5:15 pm de lunes a viernes
     ()=>{
         respaldosbdMysql.backup('asodocs', 'asodocs', 'fwalmai', '/home/web/backup_db/'); //respaldo base ASO/DOCS
