@@ -97,6 +97,32 @@ async function actualizarTasaDT()
     );
 }
 
+async function actDatCtas()
+{
+    console.log('Actualizando datos de cuentas');
+    sql =`call p_dist_pag_act_cuentas()`;
+    let oraConnAso = await obtConexion(oraCredencialesAso);
+    if(!oraConnAso)
+    {
+        console.log('Fallo al conectar con Asoportuguesa');
+        return;
+    }
+    opciones  ={
+        outFormat: oraBase.OBJECT,
+        autoCommit: true
+    }
+    try
+    {
+        let resp = await oraConnAso.execute(sql, {}, opciones); 
+        console.log('correcto:', resp);
+    }
+    catch(e)
+    {
+        console.error('Error en actDatCtas Asoportuguesa:');
+        console.error(e);
+        return false;
+    }
+}
 //debug
 console.log('Inicio de la tarea V1:');
 console.log(Date());
@@ -108,6 +134,7 @@ var task = CronJob.schedule(
         respaldosbdMysql.backup('asodocs', 'asodocs', 'fwalmai', '/home/web/backup_db/'); //respaldo base ASO/DOCS
         respaldosArcGit.backupArc('../documentos.asoportuguesa.org', 'master'); //respaldo archivos GIT
         montoAsoproductos.montoVentaDia(); //notificación via WhatsApp
+        actDatCtas();
     },
     {
         schedule: false
