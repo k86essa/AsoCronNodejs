@@ -134,7 +134,6 @@ var task = CronJob.schedule(
         respaldosbdMysql.backup('asodocs', 'asodocs', 'fwalmai', '/home/web/backup_db/'); //respaldo base ASO/DOCS
         respaldosArcGit.backupArc('../documentos.asoportuguesa.org', 'master'); //respaldo archivos GIT
         montoAsoproductos.montoVentaDia(); //notificación via WhatsApp
-        actDatCtas();
     },
     {
         schedule: false
